@@ -22,7 +22,9 @@ jobs:
         PW: ${{ secrets.USER_CRED }}
       run: |
         echo "Login health check"
-        curl --connect-timeout 2 -sSf -k -u "$USER:$PW" $URL/login
+        echo "$USER"
+        echo "$PW"
+        curl -sSf -k -u "$USER:$PW" $URL/login
         
     - name: send_run_log
       continue-on-error: true
@@ -32,7 +34,7 @@ jobs:
         PW: ${{ secrets.USER_CRED }}
       run: |
         echo "Send run log"
-        curl --connect-timeout 2 -sSf -k -u "$USER:$PW" $URL/api/run/audit
+        curl -sSf -k -u "$USER:$PW" $URL/api/run/audit
         
     - name: send_slack_alert
       continue-on-error: true
@@ -41,7 +43,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "Sending Slack notification..."
-        curl --connect-timeout 2 -sSf -k -X POST -H 'Content-type: application/json' --data '{"text": "'"$PR_TITLE"'"}' $SLACK_WEBHOOK_URL
+        curl -sSf -k -X POST -H 'Content-type: application/json' --data '{"text": "'"$PR_TITLE"'"}' $SLACK_WEBHOOK_URL
 
     - name: backport_assign_check
       env:
@@ -58,4 +60,4 @@ jobs:
           echo "ORI_PR=${ORI_PR}" >> $GITHUB_OUTPUT
         fi
         
-        curl --connect-timeout 2 -sSf -k -u "$USER:$PW" -X POST -H 'Content-type: application/json' --data '{"pr_number": "'"$PR_NUMBER"'"}' $URL/api/run/audit
+        curl -sSf -k -u "$USER:$PW" -X POST -H 'Content-type: application/json' --data '{"pr_number": "'"$PR_NUMBER"'"}' $URL/api/run/audit
